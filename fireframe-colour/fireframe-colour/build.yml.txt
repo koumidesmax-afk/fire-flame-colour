@@ -1,0 +1,27 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Build the APK
+        run: |
+          d=$(dirname "$(find . -name build.sh | head -1)")
+          cd "$d"
+          export ANDROID_HOME="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          ls "$ANDROID_HOME/build-tools" "$ANDROID_HOME/platforms"
+          sh build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fireframe-colour-apk
+          path: "**/out/fireframe.apk"
